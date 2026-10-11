@@ -6,6 +6,8 @@ import {
   rejectAnnouncement,
   confirmDelete,
   adminForceDelete,
+  watchAuditLogs,
+  AuditAction,
 } from "../announcement-service.js";
 import { adminCreateTeacher } from "../auth-service.js";
 import { watchAllUsers, deleteUserProfile } from "../user-service.js";
@@ -27,7 +29,8 @@ export function renderAdminView(container, user) {
       <button class="nav-btn active" data-tab="0"><span class="nav-icon">🗓️</span>Kalender</button>
       <button class="nav-btn" data-tab="1"><span class="nav-icon">📋</span>Semua Pengumuman</button>
       <button class="nav-btn" data-tab="2"><span class="nav-icon">👥</span>Kelola Pengguna</button>
-      <button class="nav-btn" data-tab="3"><span class="nav-icon">👤</span>Profil</button>
+      <button class="nav-btn" data-tab="3"><span class="nav-icon">🕘</span>Riwayat</button>
+      <button class="nav-btn" data-tab="4"><span class="nav-icon">👤</span>Profil</button>
     </div>`;
 
   const body = container.querySelector("#dash-body");
@@ -76,7 +79,7 @@ export function renderAdminView(container, user) {
             canEdit: true,
             canApprove: a.authorRole !== UserRole.ADMIN,
             onEdit: () => openAnnouncementForm({ currentUser: user, initialDate: a.date, existing: a }),
-            onDelete: () => adminForceDelete(a),
+            onDelete: () => adminForceDelete(a, user),
             onApprove: () =>
               a.status === AnnouncementStatus.PENDING_DELETE
                 ? confirmDelete({ approver: user, target: a })
@@ -84,6 +87,38 @@ export function renderAdminView(container, user) {
             onReject: () => rejectAnnouncement({ approver: user, target: a }),
           })
         );
+      });
+    });
+    unsubs.push(unsub);
+  }
+
+  const AUDIT_LABEL = {
+    [AuditAction.APPROVE]: "menyetujui",
+    [AuditAction.REJECT]: "menolak",
+    [AuditAction.CONFIRM_DELETE]: "mengonfirmasi hapus",
+    [AuditAction.CREATE]: "membuat (langsung disetujui)",
+    [AuditAction.UPDATE]: "mengedit (langsung disetujui)",
+    [AuditAction.FORCE_DELETE]: "menghapus paksa",
+  };
+
+  function drawAuditTab() {
+    body.innerHTML = `<div id="audit-list"></div>`;
+    const list = body.querySelector("#audit-list");
+    const unsub = watchAuditLogs((logs) => {
+      if (logs.length === 0) {
+        list.innerHTML = `<p class="empty-msg">Belum ada riwayat persetujuan.</p>`;
+        return;
+      }
+      list.innerHTML = "";
+      logs.forEach((l) => {
+        const row = document.createElement("div");
+        row.className = "user-row";
+        row.innerHTML = `
+          <div>
+            <div class="name">${escapeHtml(l.actorName)} (${roleLabel(l.actorRole)}) ${AUDIT_LABEL[l.action] ?? escapeHtml(l.action)}</div>
+            <div class="meta">"${escapeHtml(l.announcementTitle)}" · ${l.createdAt.toLocaleString("id-ID")}</div>
+          </div>`;
+        list.appendChild(row);
       });
     });
     unsubs.push(unsub);
@@ -183,6 +218,7 @@ export function renderAdminView(container, user) {
     if (tab === 0) drawCalendarTab();
     else if (tab === 1) drawAllAnnouncementsTab();
     else if (tab === 2) drawManageUsersTab();
+    else if (tab === 3) drawAuditTab();
     else drawProfileTab();
   }
 
