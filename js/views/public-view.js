@@ -2,6 +2,7 @@ import { categoryLabel, categoryColor, AnnouncementStatus, TargetAudience, escap
 import { watchApproved } from "../announcement-service.js";
 import { renderCalendar } from "../calendar.js";
 import { showDaySheet } from "../day-sheet.js";
+import { emptyFilter, filterAnnouncements, mountFilterBar } from "../announcement-filter.js";
 
 const LOGO_URL = "https://ugc.production.linktr.ee/4btAu48R9qoHS6tpuI0J_D7osonk2FBBtpmoE?io=true&size=avatar-v3_0";
 
@@ -10,6 +11,7 @@ export function renderPublicView(container, { onLoginClick } = {}) {
   let focusedMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   let allAnnouncements = [];
   let unsub = null;
+  const filter = emptyFilter();
 
   container.innerHTML = `
     <div class="topbar brand-bar">
@@ -74,19 +76,25 @@ export function renderPublicView(container, { onLoginClick } = {}) {
     const season = seasonForMonth(focusedMonth.getMonth());
     body.innerHTML = `
       <div class="calendar-page-head"><button class="wood-btn ghost small" id="back-home">← Beranda</button><div><h2>Kalender Pengumuman</h2><p>${season.emoji} ${season.label}</p></div></div>
+      <div id="filter-slot"></div>
       <div id="calendar-slot" class="wood-panel"></div>
       <div class="calendar-contact parchment-panel"><strong>Kontak SMK YASBAM</strong><div>0251-8292474 · yasbam44@yahoo.com</div></div>`;
     body.querySelector("#back-home").addEventListener("click", drawHome);
     const slot = body.querySelector("#calendar-slot");
-    renderCalendar(slot, {
-      focusedMonth,
-      announcements: allAnnouncements,
-      onMonthChange: (m) => { focusedMonth = m; drawCalendar(); },
-      onDayTap: (date) => {
-        const events = allAnnouncements.filter((a) => isSameDay(a.date, date));
-        showDaySheet({ date, dayAnnouncements: events, currentUser: null });
-      },
-    });
+    const paint = () => {
+      const visible = filterAnnouncements(allAnnouncements, filter);
+      renderCalendar(slot, {
+        focusedMonth,
+        announcements: visible,
+        onMonthChange: (m) => { focusedMonth = m; drawCalendar(); },
+        onDayTap: (date) => {
+          const events = visible.filter((a) => isSameDay(a.date, date));
+          showDaySheet({ date, dayAnnouncements: events, currentUser: null });
+        },
+      });
+    };
+    mountFilterBar(body.querySelector("#filter-slot"), filter, paint);
+    paint();
   }
 
   drawHome();

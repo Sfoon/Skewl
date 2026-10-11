@@ -16,11 +16,13 @@ import { showDaySheet } from "../day-sheet.js";
 import { createAnnouncementCard } from "../announcement-card.js";
 import { openAnnouncementForm } from "../announcement-form.js";
 import { renderProfileTab } from "./profile-view.js";
+import { emptyFilter, filterAnnouncements, mountFilterBar } from "../announcement-filter.js";
 
 export function renderAdminView(container, user) {
   let tab = 0;
   let focusedMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   const unsubs = [];
+  const filter = emptyFilter();
 
   container.innerHTML = `
     <div class="topbar"><h1>Admin · ${escapeHtml(user.name)}</h1></div>
@@ -45,9 +47,11 @@ export function renderAdminView(container, user) {
   });
 
   function drawCalendarTab() {
-    body.innerHTML = `<div class="wood-panel" id="cal-slot"></div>`;
+    body.innerHTML = `<div id="filter-slot"></div><div class="wood-panel" id="cal-slot"></div>`;
     const slot = body.querySelector("#cal-slot");
-    const unsub = watchApproved((list) => {
+    let all = [];
+    const paint = () => {
+      const list = filterAnnouncements(all, filter);
       renderCalendar(slot, {
         focusedMonth,
         announcements: list,
@@ -60,6 +64,11 @@ export function renderAdminView(container, user) {
           showDaySheet({ date, dayAnnouncements: events, currentUser: user });
         },
       });
+    };
+    mountFilterBar(body.querySelector("#filter-slot"), filter, paint);
+    const unsub = watchApproved((list) => {
+      all = list;
+      paint();
     });
     unsubs.push(unsub);
   }
