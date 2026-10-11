@@ -296,3 +296,180 @@ button, input, select, textarea { font-family: var(--font-body); font-size: 17px
   .home-announcement h4 { font-size:19px; }
   .calendar-page-head h2 { font-size:18px; }
 }
+
+/* =====================================================================
+   TAMBAHAN: transisi, menu "liquid crystal", dan bilah cari livery Grello.
+   Semua ditaruh di akhir file agar aturan lama di atas tidak berubah.
+   ===================================================================== */
+
+/* ---------- Transisi umum ---------- */
+@keyframes viewIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sheetUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+@keyframes popIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: none; } }
+
+/* Isi tiap tab / halaman muncul bergantian saat pindah menu atau bulan. */
+.dash-body > * { animation: viewIn 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.dash-body > *:nth-child(2) { animation-delay: 0.05s; }
+.dash-body > *:nth-child(3) { animation-delay: 0.1s; }
+.dash-body > *:nth-child(4) { animation-delay: 0.15s; }
+.dash-body > *:nth-child(5) { animation-delay: 0.2s; }
+
+.sheet-overlay, .modal-overlay { animation: fadeIn 0.2s ease both; }
+.sheet-panel { animation: sheetUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.modal-card { animation: popIn 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+
+.wood-btn, .chip-btn, .choice-chip, .cal-arrow, .cal-cell, .icon-btn, .text-btn {
+  transition: transform 0.15s ease, filter 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.wood-btn:active, .chip-btn:active, .cal-arrow:active { transform: scale(0.96); }
+.cal-cell:hover:not(.empty) { transform: scale(1.05); }
+.home-announcement, .user-row, .ann-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.home-announcement:hover, .user-row:hover, .ann-card:hover { transform: translateY(-2px); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.22); }
+
+/* ---------- Menu gaya liquid crystal (kaca cair) ---------- */
+@keyframes glassSheen { from { background-position: 0% 0, 0 0; } to { background-position: 100% 0, 0 0; } }
+
+.topbar, .bottom-nav {
+  background: linear-gradient(135deg, rgba(62, 38, 22, 0.92), rgba(104, 66, 32, 0.8));
+  -webkit-backdrop-filter: blur(16px) saturate(1.7);
+  backdrop-filter: blur(16px) saturate(1.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -10px 18px rgba(255, 255, 255, 0.06),
+    0 8px 22px rgba(62, 38, 20, 0.35);
+}
+.topbar { position: relative; border-radius: 0 0 22px 22px; }
+.bottom-nav { left: 10px; right: 10px; bottom: 10px; border-radius: 26px; overflow: hidden; }
+
+/* Kilau cahaya yang bergeser pelan di permukaan kaca. */
+.topbar::before, .bottom-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0) 32%, rgba(255, 255, 255, 0) 62%, rgba(255, 255, 255, 0.16) 100%),
+    radial-gradient(120% 140% at 10% -20%, rgba(255, 255, 255, 0.35), transparent 55%);
+  background-size: 200% 100%, 100% 100%;
+  animation: glassSheen 9s ease-in-out infinite alternate;
+}
+.topbar > * { position: relative; }
+
+.nav-btn { position: relative; isolation: isolate; transition: color 0.25s ease, transform 0.25s ease; }
+.nav-btn::before {
+  content: "";
+  position: absolute;
+  inset: 4px 6px;
+  z-index: -1;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.nav-btn.active::before { opacity: 1; transform: scale(1); }
+.nav-btn:active { transform: scale(0.94); }
+
+/* ---------- Bilah cari & filter: livery Manthey Racing "Grello" ---------- */
+.fbar { --grello: #c8f21b; --pit: #0d0d0d; margin-bottom: 12px; }
+
+.fbar-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  color: var(--grello);
+  background-color: var(--pit);
+  background-image: repeating-linear-gradient(115deg, transparent 0 14px, rgba(200, 242, 27, 0.14) 14px 22px);
+  border: 3px solid var(--grello);
+  border-radius: 14px;
+  font-size: 20px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: filter 0.2s ease, transform 0.15s ease;
+}
+.fbar-toggle:hover { filter: brightness(1.15); }
+.fbar-toggle:active { transform: scale(0.98); }
+.fbar-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--grello);
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+}
+.fbar.active .fbar-dot { background: var(--grello); box-shadow: 0 0 10px var(--grello); }
+
+/* Ruang bilah terbuka perlahan (0fr -> 1fr), tetesan berjalan di dalamnya. */
+.fbar-reveal { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.6s cubic-bezier(0.3, 0.8, 0.3, 1); }
+.fbar.open .fbar-reveal { grid-template-rows: 1fr; }
+.fbar-inner { min-height: 0; overflow: hidden; position: relative; }
+
+.fbar-goo { position: absolute; inset: 0; filter: url(#fbar-goo); pointer-events: none; }
+.fbar-goo i { position: absolute; display: block; background: var(--grello); }
+.fbar-pool { inset: 10px 4px 4px; border-radius: 18px; transform-origin: 28px 100%; }
+.fbar-stream { top: 0; left: 23px; width: 10px; height: calc(100% - 8px); border-radius: 6px; transform-origin: top; opacity: 0; }
+.fbar-drop { top: 0; left: 20px; width: 16px; height: 16px; border-radius: 50%; opacity: 0; }
+
+@keyframes poolFill {
+  from { opacity: 0; transform: scale(0.08, 0.06); }
+  15% { opacity: 1; }
+  to { opacity: 1; transform: none; }
+}
+@keyframes streamDown {
+  0% { opacity: 1; transform: scaleY(0); }
+  85% { opacity: 1; transform: scaleY(1); }
+  100% { opacity: 0; transform: scaleY(1); }
+}
+@keyframes dropFall {
+  0% { opacity: 1; top: -4px; }
+  85% { opacity: 1; top: calc(100% - 22px); }
+  100% { opacity: 0; top: calc(100% - 22px); }
+}
+.fbar.dripping .fbar-pool { animation: poolFill 0.75s 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards; }
+.fbar.dripping .fbar-stream { animation: streamDown 0.5s cubic-bezier(0.5, 0, 0.9, 0.5) both; }
+.fbar.dripping .fbar-drop { animation: dropFall 0.5s cubic-bezier(0.5, 0, 0.9, 0.5) both; }
+
+.fbar-panel {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  padding: 22px 18px 18px 26px;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.fbar.open .fbar-panel { opacity: 1; transform: none; transition: opacity 0.35s ease 0.5s, transform 0.35s ease 0.5s; }
+/* Garis hitam ala strip livery di sisi kiri panel. */
+.fbar-panel::before { content: ""; position: absolute; left: 12px; top: 26px; bottom: 20px; width: 5px; border-radius: 3px; background: var(--pit); }
+
+.fbar-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fbar-input, .fbar-select {
+  width: 100%;
+  padding: 10px 12px;
+  color: var(--grello);
+  background: var(--pit);
+  border: 2px solid var(--pit);
+  border-radius: 10px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.fbar-input::placeholder { color: rgba(200, 242, 27, 0.55); }
+.fbar-input:focus, .fbar-select:focus { border-color: #fff; box-shadow: 0 0 0 3px rgba(13, 13, 13, 0.35); }
+.fbar-select option { background: var(--pit); color: var(--grello); }
+
+@media (max-width: 480px) { .fbar-row { grid-template-columns: 1fr; } }
+
+/* Hormati pengguna yang mematikan animasi di perangkatnya. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0s !important; transition-duration: 0.01ms !important; transition-delay: 0s !important; }
+}
