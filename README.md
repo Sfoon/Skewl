@@ -1,11 +1,6 @@
 # Aplikasi Pengumuman SMK YASBAM — Versi JavaScript
 
-Versi ini adalah hasil konversi dari aplikasi Flutter/Dart sebelumnya
-menjadi **JavaScript murni (ES Modules) + Firebase**, tanpa framework dan
-tanpa langkah build/bundling — jadi bisa langsung di-host sebagai situs
-statis (misalnya di **GitHub Pages**) dan dibungkus jadi aplikasi Android
-dengan **Capacitor**. Tampilan & seluruh aturan bisnis (peran, alur
-persetujuan, batas 1 murid/guru, dst.) persis sama dengan versi Dart.
+Versi ini sudah ditambahkan pada pages github. Saya telah menyediakan file "LINK-WEB.url" sebagai shortcut
 
 ## Struktur Folder
 
@@ -161,4 +156,3 @@ Di Android Studio: **Build → Build Bundle(s)/APK(s) → Build APK(s)**.
 - Notifikasi push (Firebase Cloud Messaging).
 - Lampiran gambar/file pada pengumuman (Firebase Storage).
 - Pencarian & filter kategori/target pembaca pada kalender publik.
-- Log riwayat siapa menyetujui/menolak apa (audit trail).
